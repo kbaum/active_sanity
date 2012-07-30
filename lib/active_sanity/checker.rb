@@ -67,20 +67,21 @@ module ActiveSanity
     #
     def check_all_records
       models.each do |model|
-        begin
-          model.find_each do |record|
-            unless record.valid?
-              invalid_record!(record)
-            end
+        model.find_each do |record|
+          unless record_valid? record
+            invalid_record!(record)
           end
-        rescue => e
-          # Rescue from exceptions (table does not exists,
-          # deserialization error, ...)
-          puts e.message
-          puts "Skipping validations for #{model}"
         end
       end
     end
+
+    def record_valid? record
+      record.valid?
+    rescue => e
+      puts "Validation failed for #{record}: #{e.message}"
+      false
+    end
+
 
     def invalid_record!(record)
       log_invalid_record(record)
